@@ -1,0 +1,23 @@
+# Dados locais, credenciais e evidências de câmeras
+.env
+.env.*
+!.env.example
+data/
+.tools/
+backups/
+restauracoes/
+*.sqlite
+*.sqlite-*
+*.db
+*.db-*
+camera.key
+local-runtime.json
+*.pem
+*.key
+
+# Dependências e arquivos temporários
+node_modules/
+coverage/
+*.log
+.DS_Store
+Thumbs.db

@@ -1,20 +1,19 @@
 # Invictus Monitoramento Inteligente
 
-Repositório destinado ao código do sistema de monitoramento e à integração da nova interface criada na Lovable.
+Sistema de monitoramento de câmeras e atendimento de ocorrências.
 
-## Estado atual — 07/11/2026
+## Estado do repositório
 
-**O código da aplicação ainda não foi importado neste repositório.** Os arquivos iniciais são documentação e exclusões para arquivos locais. Não constituem um sistema executável nem uma implantação em produção.
+Este repositório contém somente os arquivos iniciais de documentação e configuração do Git. **O código da aplicação ainda precisa ser importado.** Não há aplicação executável ou implantação operacional neste repositório neste momento.
 
-- Último pacote de código entregue nesta conversa: **0.42.0**. Seu registro de validação informa 162 testes automatizados aprovados. Esses testes pertencem à versão entregue e não foram executados neste repositório.
-- Nova interface: [Invictus Visão ao Vivo na Lovable](https://lovable.dev/projects/64472665-4aa2-4c8d-a369-e9cdf4ddfd4d).
-- A correção da prévia está no commit Lovable `b55961ed75a1a47d9097d3dd87b897ecd4da3619`. Seu documento `docs/VALIDACAO-PREVIA.md` registra build e verificação de tipos aprovados, 8 testes aprovados e validação desktop/mobile.
-- A prévia usa dados e imagens demonstrativos. Ainda não possui integração com o DVR, análise de IA, autenticação, banco de dados ou licenças reais.
+## Próximas etapas
 
-## Próximo passo
+- Importar os arquivos de programa da versão existente.
+- Integrar a interface visual às funções reais do sistema.
+- Executar a validação do conjunto integrado antes da implantação.
 
-Importar o código do pacote existente, preservando o motor Node/SQLite/RTSP. Depois, adaptar a interface aprovada aos contratos reais desse código, validar o fluxo completo e preparar a implantação.
+Consulte [o procedimento de importação e integração](docs/IMPORTACAO-E-INTEGRACAO.md).
 
-Consulte [o registro de importação e integração](docs/IMPORTACAO-E-INTEGRACAO.md).
+## Arquivos locais
 
-Não adicionar dados de clientes, fotografias, senhas, chaves de API, banco de dados, pasta `data`, backups ou configurações privadas. O `.gitignore` ajuda no uso do Git local, mas não impede o envio manual desses arquivos pela interface do GitHub.
+Não versionar bancos de dados, fotografias, dados de clientes, senhas, chaves, arquivos `.env` privados ou backups. O `.gitignore` orienta o Git local, mas não impede o envio manual desses arquivos pela interface do GitHub.

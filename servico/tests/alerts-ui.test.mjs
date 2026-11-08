@@ -1,0 +1,27 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+test('Fila toca apenas para novos registros e encerra polling ao sair, permitindo novo login',async()=>{
+  const nodes=new Map(),timers=new Map();let next=0,count=0,beeps=0;
+  const node=()=>({hidden:false,textContent:'',children:[],classList:{toggle(){}},setAttribute(){},replaceChildren(){this.children=[]},append(x){this.children.push(x)}});
+  const document={getElementById:id=>{if(!nodes.has(id))nodes.set(id,node());return nodes.get(id)},createElement:()=>node()};
+  const window={addEventListener(){}};
+  vm.runInNewContext(readFileSync(new URL('../web/alerts.js',import.meta.url),'utf8'),{window,document,AbortController,Date,setTimeout:fn=>{timers.set(++next,fn);return next},clearTimeout:id=>timers.delete(id)});
+  const alerts=window.InvictusAlerts;alerts.beep=()=>beeps++;
+  const first={id:'a',title:'Pessoa',cameraName:'Portão',priority:'Alta'};
+  const api=async()=>({count:++count===1?1:2,events:count===1?[first]:[first,{...first,id:'b'}]});
+  const flush=()=>new Promise(r=>setImmediate(r));
+  alerts.start({role:'admin',api,open(){}});await flush();assert.equal(beeps,0);
+  timers.get(alerts.timer)();await flush();assert.equal(beeps,1);
+  timers.get(alerts.timer)();await flush();assert.equal(beeps,1);
+  first.alertKey='transfer:one';first.transferredToMe=true;
+  timers.get(alerts.timer)();await flush();assert.equal(beeps,2);assert.match(nodes.get('alertItems').children[0].textContent,/Transferida para você/);
+  timers.get(alerts.timer)();await flush();assert.equal(beeps,2);
+  first.alertKey='transfer:two';timers.get(alerts.timer)();await flush();assert.equal(beeps,3);
+  first.alertKey='overdue:a';first.overdue=true;timers.get(alerts.timer)();await flush();assert.equal(beeps,4);assert.match(nodes.get('alertItems').children[0].textContent,/Prazo excedido/);
+  timers.get(alerts.timer)();await flush();assert.equal(beeps,4);
+  alerts.stop();assert.equal(alerts.timer,null);assert.equal(alerts.controller,null);assert.equal(nodes.get('alertStrip').hidden,true);
+  const prior=count;alerts.start({role:'admin',api,open(){}});await flush();assert.equal(count,prior+1);assert.equal(beeps,4);
+  alerts.start({role:'client',api,open(){}});assert.equal(nodes.get('alertStrip').hidden,true);
+});

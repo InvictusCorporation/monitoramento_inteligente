@@ -1,0 +1,20 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import {readFileSync} from 'node:fs';
+const source=readFileSync(new URL('../web/app.js',import.meta.url),'utf8');
+const escape=source.split('\n').find(l=>l.startsWith('const esc ='));
+const code=source.slice(source.indexOf('function masterCustomers('),source.indexOf('async function masterOverview('));
+test('master lista clientes sem local e locais sem vínculo sem criar cadastros automaticamente',()=>{
+  const content={};
+  const state={organization:{brand:'<Invictus>'},customers:[{id:'a',name:'<Cliente A>'},{id:'b',name:'Cliente sem local'}],clients:[{id:'l',name:'Casa',customerId:'a',license:{status:'active'}},{id:'unlinked',name:'Loja',license:{status:'pending'}}],cameras:[{client:'l'},{client:'unlinked'}]};
+  const before=JSON.stringify(state);
+  const ctx=vm.createContext({state,$:()=>content,licenseLabel:l=>l.status});
+  vm.runInContext(escape+'\n'+code,ctx);ctx.masterCustomers();
+  assert.match(content.innerHTML,/&lt;Cliente A&gt;/);assert.match(content.innerHTML,/&lt;Invictus&gt;/);
+  assert.match(content.innerHTML,/Cliente sem local<\/td><td>0<\/td><td>0<\/td><td>0/);
+  assert.match(content.innerHTML,/Locais sem cliente vinculado: 1/);
+  assert.match(content.innerHTML,/id="addCustomer"/);assert.match(content.innerHTML,/id="addClient"/);
+  assert.match(content.innerHTML,/data-link-customer="unlinked"/);
+  assert.equal(JSON.stringify(state),before);assert.ok(!content.innerHTML.includes('<video'));
+});

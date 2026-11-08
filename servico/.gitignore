@@ -1,0 +1,14 @@
+data/
+*.sqlite*
+.env
+.env.*
+!.env.example
+*.key
+node_modules/
+.tools/
+coverage/
+*.zip
+*.tar.gz
+
+backups/
+restauracoes/

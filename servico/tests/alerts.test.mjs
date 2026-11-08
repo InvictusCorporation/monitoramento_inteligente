@@ -1,0 +1,61 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {once} from 'node:events';
+import {openDatabase} from '../server/database.mjs';
+import {createApp} from '../server/app.mjs';
+test('Central isola alertas, exige CSRF, registra um responsável e preserva finalização separada',async t=>{
+  const db=openDatabase(':memory:');
+  for(const org of ['a','b']){
+    db.prepare('INSERT INTO organizations VALUES(?,?,?,?)').run(org,org,org,org);
+    db.prepare('INSERT INTO clients VALUES(?,?,?)').run('l'+org,org,org);
+    db.prepare('INSERT INTO cameras VALUES(?,?,?,?,?)').run('c'+org,org,'l'+org,org,new Date().toISOString());
+    db.prepare('INSERT INTO events(id,org_id,camera_id,title,priority,rule,created_at) VALUES(?,?,?,?,?,?,?)').run('e'+org,org,'c'+org,'Pessoa','Alta','Regra',new Date().toISOString());
+  }
+  const tokens={};let n=0;
+  for(const [id,org,role,client] of [['admin','a','admin',null],['operator','a','operator',null],['client','a','client','la'],['other','b','admin',null]]){
+    db.prepare('INSERT INTO users(id,org_id,name,email,password_hash,role,client_id) VALUES(?,?,?,?,?,?,?)').run(id,org,id,id+'@example.com','unused',role,client);
+    const token=String(++n).padStart(64,'0');tokens[id]=token;db.prepare('INSERT INTO sessions VALUES(?,?,?,?)').run(createHash('sha256').update(token).digest('hex'),id,'csrf',Date.now()+60000);
+  }
+  const origin='http://127.0.0.1:8087',server=await createApp({db,origin});server.listen(0,'127.0.0.1');await once(server,'listening');
+  t.after(async()=>{await server.stopMonitoring();await new Promise(r=>server.close(r));db.close()});
+  const base='http://127.0.0.1:'+server.address().port;
+  const req=(path,user='admin',body,csrf='csrf')=>fetch(base+path,{method:body?'POST':'GET',headers:{Origin:origin,Cookie:'invictus_session='+tokens[user],'X-CSRF-Token':csrf,'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
+  assert.equal((await fetch(base+'/api/alerts')).status,401);
+  assert.equal((await fetch(base+'/api/diagnostics')).status,401);
+  assert.equal((await fetch(base+'/api/evidence/retention-preview')).status,401);
+  assert.equal((await req('/api/evidence/retention-preview','operator')).status,403);
+  assert.equal((await req('/api/evidence/retention-preview','client')).status,403);
+  assert.equal((await req('/api/evidence/retention-preview?client=lb')).status,404);
+  assert.equal((await req('/api/evidence/retention-preview?days=-1')).status,400);
+  assert.equal((await req('/api/evidence/retention-preview?days=30')).status,200);
+  const health=await (await req('/api/diagnostics')).json();assert.equal(health.cameras.length,1);assert.equal(health.cameras[0].id,'ca');
+  const otherHealth=await (await req('/api/diagnostics','other')).json();assert.equal(otherHealth.cameras[0].id,'cb');
+  const alerts=await (await req('/api/alerts')).json();assert.equal(alerts.count,1);assert.equal(alerts.events[0].id,'ea');
+  assert.equal((await req('/api/alerts','client')).status,403);
+  assert.equal((await req('/api/events/ea/claim','other',{version:1})).status,404);
+  assert.equal((await req('/api/events/ea/claim','client',{version:1})).status,403);
+  assert.equal((await req('/api/events/ea/claim','admin',{version:1},'bad')).status,403);
+  const results=await Promise.all([req('/api/events/ea/claim','admin',{version:1}),req('/api/events/ea/claim','operator',{version:1})]);
+  assert.deepEqual(results.map(r=>r.status).sort(),[200,409]);
+  assert.equal((await (await req('/api/alerts')).json()).count,0);
+  const event=(await (await req('/api/state')).json()).events[0];assert.equal(event.status,'Em análise');assert.ok(event.claimedBy);assert.ok(event.claimedAt);assert.equal(event.version,2);
+  assert.equal(db.prepare("SELECT count(*) n FROM audit WHERE action='event.claimed'").get().n,1);
+  const edit=payload=>fetch(base+'/api/events/ea',{method:'PATCH',headers:{Origin:origin,Cookie:'invictus_session='+tokens.admin,'X-CSRF-Token':'csrf','Content-Type':'application/json'},body:JSON.stringify(payload)});
+  assert.equal((await edit({version:2,status:'Finalizada',note:'<script>texto</script>\nVerificado'})).status,200);
+  assert.equal((await edit({version:2,status:'Pendente',note:'Conflito'})).status,409);
+  assert.equal(db.prepare('SELECT count(*) n FROM event_revisions').get().n,1);
+  const revision=db.prepare('SELECT * FROM event_revisions').get();assert.equal(revision.old_status,'Em análise');assert.equal(revision.new_status,'Finalizada');assert.equal(revision.old_note,'');assert.equal(revision.new_note,'<script>texto</script>\nVerificado');assert.equal(revision.new_version,3);
+  assert.equal((await fetch(base+'/api/events/ea/history')).status,401);
+  assert.equal((await req('/api/events/ea/history','client')).status,403);
+  assert.equal((await req('/api/events/ea/history','other')).status,404);
+  assert.equal((await req('/api/events/missing/history')).status,404);
+  const history=await (await req('/api/events/ea/history','operator')).json();
+  assert.equal(history.entries.length,2);assert.equal(history.entries[0].action,'event.updated');assert.equal(history.entries[0].newNote,revision.new_note);assert.equal(history.entries[0].oldNote,'');assert.equal(history.entries[1].action,'event.claimed');assert.equal(history.hasMore,false);
+  const insert=db.prepare('INSERT INTO audit VALUES(?,?,?,?,?,?)');
+  for(let i=0;i<102;i++)insert.run('history-'+i,'a','admin','event.updated','ea',new Date().toISOString());
+  insert.run('unrelated','a','admin','camera.created','ea',new Date().toISOString());
+  insert.run('foreign','b','other','event.updated','ea',new Date().toISOString());
+  const capped=await (await req('/api/events/ea/history')).json();assert.equal(capped.entries.length,100);assert.equal(capped.hasMore,true);assert.equal(capped.entries[0].id,'history-101');assert.ok(!JSON.stringify(capped).includes('foreign'));assert.ok(!JSON.stringify(capped).includes('unrelated'));
+  db.prepare("UPDATE events SET status='Finalizada' WHERE id='eb'").run();assert.equal((await req('/api/events/eb/claim','other',{version:1})).status,409);
+});

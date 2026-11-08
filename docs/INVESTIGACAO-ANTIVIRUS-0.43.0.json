@@ -9,9 +9,11 @@
     "reportedCategory": "Cavalo de Troia",
     "reportedSeverity": "Grave",
     "reportedRemediation": "Correção incompleta / Falha na quarentena",
-    "signatureName": null,
+    "signatureName": "Trojan:Script/Ulthar.A!ml",
     "identifiedMember": null,
-    "causeEstablished": false
+    "causeEstablished": false,
+    "threatId": 2147751841,
+    "signatureEvidence": "User-provided screenshot of local Get-MpThreat output, received 2026-11-08. Identified member remains unknown."
   },
   "artifacts": {
     "release": {
@@ -8417,7 +8419,7 @@
     ]
   },
   "limitations": [
-    "Microsoft Defender unavailable on Linux; signature and affected member unknown.",
+    "Microsoft Defender unavailable on Linux; affected member unknown; exact signature identified in subsequent user screenshot.",
     "Static review and ClamAV do not prove absence of malware or establish false positive.",
     "No scripts/app/tests/media decoders from package executed. No runtime or Windows remediation validation.",
     "Upstream FFmpeg/Node binaries and complete dependency implementation/lock graph not audited or downloaded from package instructions.",
@@ -8426,8 +8428,9 @@
   ],
   "nextSteps": [
     "Keep Defender enabled; do not execute package or allow threat.",
-    "Obtain redacted exact threat signature, affected resource/member and Defender engine/security-intelligence versions from Protection History or Defender Operational events.",
+    "Obtain redacted affected resource/member and Defender engine/security-intelligence versions from Protection History or Defender Operational events.",
     "Update Defender security intelligence and rerun supported scan without restoring/allowing threat; if remediation still fails, use Microsoft supported remediation/full or offline scan and qualified assistance.",
     "Only after identifying precise detection, decide focused code correction or Microsoft false-positive review with separate user consent; no submission made here."
-  ]
+  ],
+  "evidenceUpdatedOn": "2026-11-08"
 }

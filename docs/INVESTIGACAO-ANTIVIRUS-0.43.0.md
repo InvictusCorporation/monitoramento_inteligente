@@ -4,7 +4,7 @@ Data: 08/11/2026 UTC. Investigação do commit público `399985212943f6bd7654175
 
 ## Conclusão e alerta do Windows
 
-O relato disponível é **Cavalo de Troia / Grave / Correção incompleta ou Falha na quarentena**, envolvendo o arquivo do codeload e seu ZIP em `distribuicao/`. Não temos a assinatura exata nem o membro detectado. **Não foi estabelecida a causa, nem confirmado falso positivo.** A afirmação anterior de que iniciadores `.cmd` explicariam o alerta não tinha evidência suficiente e não deve orientar uma liberação.
+O relato disponível é **Cavalo de Troia / Grave / Correção incompleta ou Falha na quarentena**, envolvendo o arquivo do codeload e seu ZIP em `distribuicao/`. Atualização de evidência em 08/11/2026: a captura de `Get-MpThreat` enviada pelo usuário identifica **Trojan:Script/Ulthar.A!ml**, ThreatID **2147751841**. O membro interno afetado continua desconhecido. **Não foi estabelecida a causa, nem confirmado falso positivo.** A afirmação anterior de que iniciadores `.cmd` explicariam o alerta não tinha evidência suficiente e não deve orientar uma liberação.
 
 O ClamAV com assinaturas oficiais verificadas não detectou ameaças nos dois ZIPs ou nos membros extraídos. A revisão estática não identificou implementação maliciosa, mas encontrou capacidades de execução e transferência de dados que merecem proteção. **ClamAV não substitui Microsoft Defender**, indisponível neste Linux. Não executar o pacote nem permitir a ameaça com base neste relatório.
 
@@ -92,8 +92,20 @@ O contador 1 para cada ZIP é o arquivo de entrada, não afirmação de que todo
 ## Limites e próximos passos
 
 1. **Manter Defender ativo e não executar/restaurar/permitir o pacote.** Integridade SHA/CRC e resultado ClamAV não comprovam inocuidade.
-2. Obter o **nome exato da assinatura**, recurso/membro afetado, versão do motor e versão/data da inteligência de segurança no Histórico de proteção ou eventos de `Microsoft-Windows-Windows Defender/Operational`. Compartilhar apenas campos técnicos redigidos, sem caminhos pessoais ou credenciais.
+2. Com a assinatura já identificada, obter o **recurso/membro afetado**, versão do motor e versão/data da inteligência de segurança no Histórico de proteção ou eventos de `Microsoft-Windows-Windows Defender/Operational`. Compartilhar apenas campos técnicos redigidos, sem caminhos pessoais ou credenciais.
 3. Atualizar a inteligência de segurança do Defender e realizar verificação suportada, sem adicionar exclusões ou permitir ameaça. Se a correção continuar falhando, seguir o procedimento de remediação da Microsoft, incluindo verificação completa/offline quando indicado e auxílio técnico qualificado. O estado de quarentena não foi reproduzido ou corrigido neste Linux.
 4. Com assinatura/membro identificado, revisar o trecho preciso e decidir correção focada ou avaliação de possível falso positivo pela Microsoft, **somente com autorização separada para qualquer envio**. Nada foi enviado nesta investigação.
 
 Não executamos conteúdo do pacote, testes do aplicativo, instaladores Windows, decodificadores de mídia, FFmpeg remoto ou serviços pagos. Não acessamos o computador do usuário/DVR, não publicamos, não alteramos ZIP/programa/versão, não enfraquecemos antivírus, não enviamos arquivos a VirusTotal/terceiros e não incluímos EICAR. Somente este relatório e o manifesto público foram adicionados ao projeto.
+
+## Atualização: assinatura identificada
+
+A identificação acima vem do histórico local enviado pelo usuário; não significa execução do pacote ou confirmação de falso positivo. A página pública da Microsoft informa que não há detalhes técnicos disponíveis para esta detecção: https://www.microsoft.com/en-us/wdsi/threats/malware-encyclopedia-description?Name=Trojan%3AScript%2FUlthar.A%21ml&ThreatID=2147751841 .
+
+Consulta somente leitura para obter os recursos registrados, sem restaurar/executar o ZIP ou alterar proteção:
+
+```powershell
+Get-MpThreatDetection -ThreatID 2147751841 | Select-Object -ExpandProperty Resources | Sort-Object -Unique
+```
+
+Se o registro apontar apenas o ZIP, o membro interno permanece não identificado. O programa e o ZIP continuam inalterados e a suspensão permanece.

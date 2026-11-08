@@ -4,6 +4,8 @@
 
 Integração 0.43.0: interface operacional React e serviço original Node/SQLite/FFmpeg, com autenticação, câmeras, ocorrências, fotos, alertas, regras e gestão master pelas APIs existentes.
 
+[Relatório da investigação antivírus](docs/INVESTIGACAO-ANTIVIRUS-0.43.0.md).
+
 ## Atualizar a instalação existente
 
 Baixe [invictus-integrado-0.43.0.zip](distribuicao/invictus-integrado-0.43.0.zip) e siga [ATUALIZAR-INTEGRADO.md](servico/ATUALIZAR-INTEGRADO.md).

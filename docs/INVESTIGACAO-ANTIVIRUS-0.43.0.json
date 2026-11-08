@@ -13,7 +13,21 @@
     "identifiedMember": null,
     "causeEstablished": false,
     "threatId": 2147751841,
-    "signatureEvidence": "User-provided screenshot of local Get-MpThreat output, received 2026-11-08. Identified member remains unknown."
+    "signatureEvidence": "User-provided screenshot of local Get-MpThreat output, received 2026-11-08. Identified member remains unknown.",
+    "resourceEvidence": {
+      "source": "User-provided screenshot of Get-MpThreatDetection Resources, received 2026-11-08; personal paths and process identifiers excluded.",
+      "resourceClasses": [
+        "repository archive in Downloads",
+        "release ZIP in Downloads",
+        "release ZIP nested inside repository archive",
+        "incomplete browser downloads (.crdownload)",
+        "embedded ChatGPT browser cache entries",
+        "webfile origins matching GitHub raw and codeload downloads"
+      ],
+      "specificScriptIdentified": false,
+      "executionEstablished": false,
+      "explanation": "Resources identify archived/downloaded/cached artifacts, not a specific inner script. This is not evidence that package contents executed or proof of false positive."
+    }
   },
   "artifacts": {
     "release": {

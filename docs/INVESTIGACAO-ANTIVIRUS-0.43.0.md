@@ -109,3 +109,18 @@ Get-MpThreatDetection -ThreatID 2147751841 | Select-Object -ExpandProperty Resou
 ```
 
 Se o registro apontar apenas o ZIP, o membro interno permanece não identificado. O programa e o ZIP continuam inalterados e a suspensão permanece.
+
+
+## Atualização: recursos registrados pelo Defender
+
+A captura subsequente de `Get-MpThreatDetection` mostra o archive do repositório, o ZIP distribuído diretamente e aninhado, downloads incompletos e entradas de cache do navegador integrado do ChatGPT. As origens webfile correspondem aos downloads raw/codeload do GitHub. Caminhos pessoais, identificadores de processos e capturas não foram incluídos neste relatório.
+
+**Nenhum recurso identifica um script interno.** Os registros de download/cache, isoladamente, não comprovam execução, infecção do aplicativo ChatGPT nem falso positivo. A causa permanece aberta. Não há evidência para selecionar um arquivo e alterá-lo como correção de malware. Não reempacotar para tentar evitar detecção.
+
+### Solicitação preparada para revisão da Microsoft (não enviada)
+
+Portal oficial: https://www.microsoft.com/en-us/wdsi/filesubmission . O envio e a análise do fornecedor ainda não foram realizados. Não restaurar ou permitir o arquivo bloqueado para preencher o formulário; não enviar banco, chaves, logs pessoais ou cache do navegador.
+
+Texto técnico para a solicitação:
+
+> Solicito investigação da detecção Trojan:Script/Ulthar.A!ml (ThreatID 2147751841) no pacote invictus-integrado-0.43.0.zip do software Invictus Monitoramento Inteligente. A causa da detecção é desconhecida; não presumimos falso positivo. O produto é um serviço Node/SQLite/FFmpeg para monitoramento de câmeras. A detecção foi observada no download, no archive externo, no ZIP interno, em downloads incompletos e em cache do navegador, sem identificação de script interno ou evidência de execução. SHA256 do ZIP: f4707d65b9007444e7e88dff0e1de09a905894064555c36161a9d5556cf39572; 1305463 bytes. Código público: https://github.com/InvictusCorporation/monitoramento_inteligente/tree/399985212943f6bd7654175b91f7854d806471f9 . A revisão estática e quatro verificações ClamAV 1.4.6 com bases oficiais não identificaram malware; esses resultados não invalidam o Defender. Solicitamos indicação do recurso ou comportamento responsável, ou revisão de eventual classificação incorreta. Relatório técnico: docs/INVESTIGACAO-ANTIVIRUS-0.43.0.md nesse repositório. A instalação está suspensa e nenhum bypass foi orientado.

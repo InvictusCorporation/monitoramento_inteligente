@@ -17,7 +17,8 @@ const db=openDatabase(databasePath);
 const cameraKey=loadCameraKey(process.env.CAMERA_KEY_PATH||resolve(dirname(databasePath),'camera.key'),
   {allowCreate:db.prepare('SELECT count(*) AS count FROM camera_connections').get().count===0&&db.prepare('SELECT count(*) AS n FROM ai_settings').get().n===0});
 const videoGateway=new SharedVideoGateway({...loadCapacity(resolve('data/capacity.json')),executable:process.env.FFMPEG_PATH||'',endpoints:parseEndpoints(process.env.CAMERA_ALLOWED_ENDPOINTS)});
-const server=await createApp({db,origin,secureCookies:production,cameraKey,videoGateway});
+const modernUiRoot=process.env.INVICTUS_UI==='modern'?resolve('dist/interface'):null;
+const server=await createApp({db,origin,secureCookies:production,cameraKey,videoGateway,modernUiRoot});
 const backups=attachBackupScheduler(server,{root:resolve('.'),databasePath,keyPath:process.env.CAMERA_KEY_PATH||resolve(dirname(databasePath),'camera.key')});
 server.listen(port,host,()=>console.log(`Invictus Monitoramento: ${origin}`));
 async function stop(){await backups.close();await server.stopMonitoring();videoGateway.close();server.close(()=>{db.close();process.exit(0)})}

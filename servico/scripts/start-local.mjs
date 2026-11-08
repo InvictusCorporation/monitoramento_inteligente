@@ -19,7 +19,8 @@ const gateway=new SharedVideoGateway({...loadCapacity(resolve('data/capacity.jso
 const first=db.prepare('SELECT count(*) AS n FROM organizations').get().n===0;
 const token=randomBytes(32).toString('hex');
 const origin='http://127.0.0.1:8087';
-const server=await createApp({db,origin,cameraKey:key,videoGateway:gateway,localSetup:first?createLocalSetup({db,key,gateway,token}):null});
+const modernUiRoot=process.env.INVICTUS_UI==='modern'?resolve('dist/interface'):null;
+const server=await createApp({db,origin,cameraKey:key,videoGateway:gateway,modernUiRoot,localSetup:first?createLocalSetup({db,key,gateway,token}):null});
 const backups=attachBackupScheduler(server,{root:resolve('.')});
 server.once('error',error=>{gateway.close();db.close();console.error(error.code==='EADDRINUSE'?'A porta 8087 já está em uso. Se o Invictus já estiver aberto, use essa janela; caso contrário, encerre a outra instalação e tente novamente.':'Não foi possível iniciar o servidor local.');process.exitCode=1});
 server.listen(8087,'127.0.0.1',async()=>{

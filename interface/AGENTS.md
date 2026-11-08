@@ -28,3 +28,7 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+- Keep the Node service under `servico/` outside the TanStack application graph; Node 24/SQLite/FFmpeg run only in the standalone service. The operational SPA shares browser-safe design components, uses same-origin APIs, and is built separately with external scripts for strict CSP.
+- Release update archives contain only the service-root program files and prebuilt UI, with a service-local launcher; keep source exports separate and never distribute installation state.
+- Operational reads normalize legacy rules without writes and serialize refreshes per session; editor drafts adopt only their own confirmed write versions or explicit reloads to avoid polling conflicts.

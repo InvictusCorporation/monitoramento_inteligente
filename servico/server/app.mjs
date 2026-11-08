@@ -1,4 +1,5 @@
 import {RetentionCleanup} from './retention-cleanup.mjs';
+import {modernUi} from './modern-ui.mjs';
 import {branding,validateBranding} from './branding.mjs';
 import {validatePlan,listPlans,selectPlan} from './plans.mjs';
 import {isPlatformAdmin,managedCompany,locationLicense,assertLocationLicense} from './commercial.mjs';
@@ -35,7 +36,8 @@ async function body(req,maxBytes=16384) {
   try { const value = JSON.parse(Buffer.concat(chunks).toString('utf8')); if (!value || Array.isArray(value) || typeof value !== 'object') throw Error(); return value; }
   catch { throw new HttpError(400, 'Dados inválidos.'); }
 }
-export async function createApp({ db, origin, secureCookies = false, now = Date.now, cameraKey=null, videoGateway=new VideoGateway(),localSetup=null,aiDetect }) {
+export async function createApp({ db, origin, secureCookies = false, now = Date.now, cameraKey=null, videoGateway=new VideoGateway(),localSetup=null,aiDetect,modernUiRoot=null }) {
+  const serveModern=modernUiRoot?await modernUi(modernUiRoot):null;
   const {version}=JSON.parse(await readFile(new URL('../package.json',import.meta.url),'utf8'));
   const installation={version,startedAt:new Date(now()).toISOString()};
   const retentionCleanup=new RetentionCleanup();
@@ -101,6 +103,13 @@ export async function createApp({ db, origin, secureCookies = false, now = Date.
     const cookie = (token,age) => `${cookieName}=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${age}${secureCookies?'; Secure':''}`;
     try {
       const url = new URL(req.url, canonicalOrigin), path = url.pathname, method = req.method;
+      if(method==='GET'&&serveModern&&await serveModern(path,res))return;
+      if(method==='GET'&&['/legado','/legado/'].includes(path)){
+        res.setHeader('Content-Type','text/html; charset=utf-8');
+        // Absolute asset URLs keep the original hash-based UI working at /legado/.
+        const html=await readFile(new URL('../web/index.html',import.meta.url),'utf8');
+        res.end(html.replace(/(src|href)="(?!\/|#|https?:)([^"]+)"/g,'$1="/$2"'));return;
+      }
       if (method==='GET' && ['/','/index.html','/style.css','/app.js','/master.js','/live-player.js','/alerts.js','/event-report.js','/rule-template.js',...(localSetup?['/local-setup.html','/local-setup.js']:[])].includes(path)) {
         const file = path==='/'?'index.html':path.slice(1);
         const mime = file.endsWith('.css')?'text/css':file.endsWith('.js')?'text/javascript':'text/html';

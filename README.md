@@ -1,39 +1,31 @@
 # Invictus Monitoramento Inteligente
 
-## Código disponível
+Integração 0.43.0: interface operacional React e serviço original Node/SQLite/FFmpeg, com autenticação, câmeras, ocorrências, fotos, alertas, regras e gestão master pelas APIs existentes.
 
-- [`servico/`](servico/): código original completo da versão 0.42.0, com servidor Node/SQLite, vídeo RTSP/FFmpeg, monitoramento, ocorrências, autenticação, gestão e testes. Foram recuperados 152 arquivos de programa, sem dados da instalação.
-- [`interface/`](interface/): nova interface visual, com 108 arquivos e imagens demonstrativas.
+## Atualizar a instalação existente
 
-**Os dois componentes estão disponíveis, mas a integração entre a nova interface e o serviço ainda está em andamento.** A interface mantém seus dados de demonstração até a conclusão dessa etapa. A cópia no GitHub não configura sincronização automática entre ferramentas.
+Baixe [invictus-integrado-0.43.0.zip](distribuicao/invictus-integrado-0.43.0.zip) e siga [ATUALIZAR-INTEGRADO.md](servico/ATUALIZAR-INTEGRADO.md).
 
-## Serviço original
+1. Encerre o programa e faça backup completo da pasta atual.
+2. Extraia o ZIP em uma pasta temporária e copie seu conteúdo na **mesma pasta da instalação existente**, substituindo somente arquivos de programa.
+3. Preserve `data/`, `.tools/`, `backups/`, `restauracoes/`, `camera.key`, configurações e `.env` privado.
+4. Execute `INICIAR-INTEGRADO.cmd` e entre com a conta existente. Confira versão 0.43.0, locais e câmeras. Se aparecer cadastro inicial, confira a pasta e o banco original antes de prosseguir.
 
-Requer Node >=24 e FFmpeg para vídeo. Consulte [`servico/README.md`](servico/README.md), [`servico/COMECE-AQUI.md`](servico/COMECE-AQUI.md) e [`servico/.env.example`](servico/.env.example). Credenciais e configurações locais devem ser definidas na instalação, nunca no repositório.
+O ZIP inclui a interface compilada; não exige Bun para iniciar. A execução continua exigindo Node 24 ou superior e FFmpeg, conforme a instalação original.
 
-```sh
-cd servico
-node --test tests/*.test.mjs
-```
+## Organização
 
-A nova execução isolada aprovou os 162 testes originais. Consulte [`docs/VALIDACAO-SERVICO-ORIGINAL.md`](docs/VALIDACAO-SERVICO-ORIGINAL.md).
+- `interface/`: fontes da interface, prévia demonstrativa e entrada operacional separada.
+- `servico/`: motor original e interface operacional compilada em `dist/interface/`.
+- `INICIAR-INTEGRADO.cmd`: inicia a versão integrada no repositório completo.
+- `COMPILAR-INTEGRADO.cmd`: recompila a interface, exigindo Bun e dependências de desenvolvimento.
+- [Integração, testes e limites](docs/INTEGRACAO-OPERACIONAL.md).
+- [Orientações de execução](docs/IMPORTACAO-E-INTEGRACAO.md).
 
-## Interface
+A prévia Lovable permanece demonstrativa. A versão operacional utiliza o Node da instalação, com UI e API na mesma origem. As configurações avançadas e funções originais continuam acessíveis em `/legado/`.
 
-Com Bun instalado e acesso às dependências:
+## Implantação
 
-```sh
-cd interface
-bun install --frozen-lockfile
-bun run dev
-bun run test
-bun run build
-```
+O envio ao GitHub não publica um servidor de produção. HTTPS, domínio, rede, acesso ao DVR, configuração local da IA e testes com equipamentos reais pertencem à implantação. As validações automatizadas usam banco temporário e imagens/vídeo de teste.
 
-A validação da interface registrou 8 testes, verificação de tipos, build e navegação desktop/mobile aprovados. Consulte [`interface/docs/VALIDACAO-PREVIA.md`](interface/docs/VALIDACAO-PREVIA.md).
-
-## Integração
-
-Os testes dos componentes separados não comprovam o funcionamento do conjunto. A próxima etapa conecta a interface aos contratos reais do serviço e valida os fluxos completos. Consulte [`docs/IMPORTACAO-E-INTEGRACAO.md`](docs/IMPORTACAO-E-INTEGRACAO.md).
-
-Não versionar bancos de dados, fotografias de clientes, senhas, chaves, arquivos `.env` privados ou backups. O `.gitignore` orienta o Git local e não impede envios manuais desses arquivos.
+O módulo de supermercado, cobrança automática e dimensionamento de uma central com vários clientes ainda exigem desenvolvimento e validação próprios. Não estão incluídos nesta integração.

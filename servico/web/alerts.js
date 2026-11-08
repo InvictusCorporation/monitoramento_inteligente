@@ -1,7 +1,7 @@
 // Poll only the alert strip: camera playback and open forms are never re-rendered.
 window.InvictusAlerts={
   generation:0,timer:null,controller:null,seen:new Set(),initialized:false,sound:false,audio:null,duration:6,volume:50,tone:null,
-  stop(){this.stopTone();this.generation++;clearTimeout(this.timer);this.timer=null;this.controller?.abort();this.controller=null;this.seen.clear();this.initialized=false;this.sound=false;this.audio?.close().catch(()=>{});this.audio=null;document.getElementById('alertStrip').hidden=true;document.getElementById('alertItems').replaceChildren()},
+  stop(){this.stopTone();this.generation++;clearTimeout(this.timer);this.timer=null;this.controller?.abort();this.controller=null;this.seen.clear();this.initialized=false;this.sound=false;this.audio?.close().catch(()=>{});this.audio=null;const strip=document.getElementById('alertStrip');if(strip)strip.hidden=true;document.getElementById('alertItems')?.replaceChildren()},
   async toggleSound(){
     if(this.sound){this.sound=false;this.stopTone()}else{
       try{const Audio=window.AudioContext||window.webkitAudioContext;this.audio??=new Audio();await this.audio.resume();this.sound=this.audio.state==='running';if(this.sound)this.beep()}catch{this.sound=false}

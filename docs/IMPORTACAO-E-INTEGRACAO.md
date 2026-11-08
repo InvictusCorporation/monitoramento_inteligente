@@ -1,21 +1,31 @@
-# Importação e integração
+# Executar a integração 0.43.0
 
-## Etapas concluídas
+## Instalação existente
 
-- Interface demonstrativa importada em `interface/`, preservando fontes, configurações, testes e imagens.
-- Serviço original 0.42.0 recuperado em `servico/`, preservando 152 arquivos e passando novamente nos 162 testes originais.
-- Arquivos conferidos por hash. Dados da instalação, chaves, banco, ferramentas baixadas e backups não foram importados.
+Use o [ZIP de atualização](../distribuicao/invictus-integrado-0.43.0.zip) e o [guia incluído no pacote](../servico/ATUALIZAR-INTEGRADO.md). Atualize a mesma pasta, com o programa encerrado e backup completo. Preserve dados, chave, configurações privadas e ferramentas existentes.
 
-## Etapa atual
+O conteúdo do ZIP já corresponde à raiz do serviço: execute `INICIAR-INTEGRADO.cmd` na pasta atualizada. Não crie uma segunda instalação vazia nem recadastre câmeras.
 
-Conectar a interface visual ao serviço já existente. A interface ainda usa dados simulados; a presença do código do serviço não a conecta automaticamente às câmeras ou aos dados reais.
+## Repositório completo
 
-1. Adaptar autenticação, sessão, troca inicial de senha e CSRF.
-2. Carregar câmeras, clientes/locais e ocorrências reais respeitando escopos e licenças.
-3. Conectar vídeo e imagens aos endpoints autenticados existentes.
-4. Persistir atendimento, finalização, notas, pausa/reativação e regras com controle de versão.
-5. Integrar permissões operacionais e gestão master, sem confundir os perfis.
-6. Preparar interface e API na mesma origem autenticada em uma implantação compatível com Node, SQLite e FFmpeg.
-7. Validar os fluxos integrados, falhas de conexão, expiração de sessão e persistência antes da operação real.
+Com Node >=24 e FFmpeg configurados, execute `INICIAR-INTEGRADO.cmd` na raiz. Em ambiente Node configurado:
 
-O mapa dos contratos reais está em `VALIDACAO-SERVICO-ORIGINAL.md`. Não criar APIs paralelas ou substituir o serviço por fixtures. A hospedagem da interface não oferece automaticamente acesso a um DVR em uma rede local.
+```sh
+cd servico
+npm run start:modern
+```
+
+O build operacional já está em `servico/dist/interface/`. Para recompilar as fontes, use Bun no diretório `interface/`:
+
+```sh
+bun install --frozen-lockfile
+bun run build:operational
+```
+
+UI e `/api` utilizam a mesma origem. Em produção, mantenha HTTPS, proxy e `APP_ORIGIN` coerentes com a instalação original. O motor Node/SQLite/FFmpeg executa fora da hospedagem de prévia Lovable.
+
+## Conferência após atualizar
+
+Entre com a conta existente. Confira versão 0.43.0 e os mesmos locais/câmeras em Configurações avançadas. Teste abertura e fechamento de vídeo, foto de ocorrência, atendimento com observação, alertas e permissões. Se os dados anteriores não aparecerem, confira pasta, banco e chave antes de continuar.
+
+Veja [o relatório técnico](INTEGRACAO-OPERACIONAL.md) para os testes executados e limites. Os testes de integração não substituem a validação do DVR, rede e API de IA da instalação real. Nenhum serviço de produção é publicado apenas pelo envio dos arquivos ao GitHub.

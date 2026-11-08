@@ -1,5 +1,7 @@
 # Invictus Monitoramento Inteligente
 
+> **Instalação 0.43.0 suspensa — 08/11/2026.** Foi relatada uma detecção Grave, categoria Cavalo de Troia, pelo Microsoft Defender no ZIP de distribuição. A causa ainda está em investigação; não há confirmação de falso positivo nem liberação de segurança. Não instalar, extrair ou executar o pacote, desativar a proteção ou criar exclusões para contornar o alerta. Os testes funcionais e de integridade anteriores não eram uma análise antivírus. As instruções abaixo ficam suspensas até a conclusão da investigação.
+
 Integração 0.43.0: interface operacional React e serviço original Node/SQLite/FFmpeg, com autenticação, câmeras, ocorrências, fotos, alertas, regras e gestão master pelas APIs existentes.
 
 ## Atualizar a instalação existente

@@ -1,5 +1,7 @@
 # Executar a integração 0.43.0
 
+> **Instalação 0.43.0 suspensa — 08/11/2026.** Foi relatada uma detecção Grave, categoria Cavalo de Troia, pelo Microsoft Defender no ZIP de distribuição. A causa ainda está em investigação; não há confirmação de falso positivo nem liberação de segurança. Não instalar, extrair ou executar o pacote, desativar a proteção ou criar exclusões para contornar o alerta. Os testes funcionais e de integridade anteriores não eram uma análise antivírus. As instruções abaixo ficam suspensas até a conclusão da investigação.
+
 ## Instalação existente
 
 Use o [ZIP de atualização](../distribuicao/invictus-integrado-0.43.0.zip) e o [guia incluído no pacote](../servico/ATUALIZAR-INTEGRADO.md). Atualize a mesma pasta, com o programa encerrado e backup completo. Preserve dados, chave, configurações privadas e ferramentas existentes.

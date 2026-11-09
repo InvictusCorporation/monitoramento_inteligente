@@ -15,7 +15,7 @@ describe("destino das credenciais preservadas",()=>{
    return connection;
   });
   const api={request} as never;
-  render(<CameraDialog camera={camera} api={api} close={()=>{}} refresh={vi.fn(async()=>null)} notify={()=>{}}/>);
+  render(<CameraDialog camera={camera} api={api} close={()=>{}} refresh={vi.fn(async()=>null)} notify={()=>{}} unauthorized={()=>{}}/>);
   fireEvent.click(await screen.findByRole("button",{name:"Alterar conexão"}));
   const keep=screen.getByRole("checkbox",{name:/Manter as credenciais/}) as HTMLInputElement;
   expect(keep.checked).toBe(true);expect(keep.disabled).toBe(false);

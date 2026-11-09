@@ -1,11 +1,11 @@
 {
   "format": "invictus-parity-assets-ci-v1",
-  "commitTestado": "158811b4b52c2fe6dd5320c165d96ec23575631b",
+  "commitTestado": "36f406f12479f8599dfc61bdcd2582dc6eb39a74",
   "files": [
     {
-      "path": "servico/dist/interface/assets/index-Cu8CSS58.js",
-      "bytes": 336686,
-      "sha256": "57890961f697cde62aa3cc933cb42068f89aae607b6506211cb808390a8115e1"
+      "path": "servico/dist/interface/assets/index-B-HHrtvn.js",
+      "bytes": 337054,
+      "sha256": "be9adeaac9a170a40bc2cd6e9e8bda8d706a102b00eb5f0d96302a2b956a6900"
     },
     {
       "path": "servico/dist/interface/assets/index-DZV-toga.css",
@@ -15,7 +15,7 @@
     {
       "path": "servico/dist/interface/index.html",
       "bytes": 1075,
-      "sha256": "2a681067a449a6630a8a80c0fe715bf4bf2b4bbe6a22be890deebfb6ec52884a"
+      "sha256": "1bf3aecad15ba6f7d3759bb7f72b3bb8c1c536f0565576377e941fade5c851ec"
     }
   ]
 }

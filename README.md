@@ -6,9 +6,19 @@ Integração 0.43.0: interface operacional React e serviço original Node/SQLite
 
 [Relatório da investigação antivírus](docs/INVESTIGACAO-ANTIVIRUS-0.43.0.md).
 
-## Atualizar a instalação existente
+## Interface operacional em desenvolvimento — 0.44.0-dev.1
 
-Baixe [invictus-integrado-0.43.0.zip](distribuicao/invictus-integrado-0.43.0.zip) e siga [ATUALIZAR-INTEGRADO.md](servico/ATUALIZAR-INTEGRADO.md).
+As fontes e o build operacional incluem telas nativas para câmeras e conexão DVR, clientes/locais, usuários, monitoramento completo, ocorrências e transferência, fotos, relatórios/CSV, auditoria, diagnóstico/retenção, conta/sessões e gestão master de empresas, planos, identidade e licenças. A interface original permanece uma opção de compatibilidade.
+
+- [Matriz de funções, permissões e limites](docs/PARIDADE-INTERFACE-OPERACIONAL.md).
+- [Validação da integração e navegador](docs/VALIDACAO-PARIDADE-0.44.0-dev.1.md).
+- [Última validação automática e build](docs/VALIDACAO-CI-PARIDADE.md).
+
+Esta entrega atualiza o código; não instala a versão no computador nem publica um servidor. O pacote 0.43.0 permanece inalterado e suspenso, não inclui as novas funções e não deve ser usado para atualizar. A prévia Lovable continua demonstrativa; as novas telas operacionais utilizam o serviço Node autenticado. Não há novo ZIP ou liberação de segurança/comercial.
+
+## Procedimento anterior de atualização — suspenso
+
+O procedimento abaixo é histórico e permanece suspenso pelo alerta de segurança. O ZIP 0.43.0 não contém as correções de paridade 0.44.0-dev.1.
 
 1. Encerre o programa e faça backup completo da pasta atual.
 2. Extraia o ZIP em uma pasta temporária e copie seu conteúdo na **mesma pasta da instalação existente**, substituindo somente arquivos de programa.

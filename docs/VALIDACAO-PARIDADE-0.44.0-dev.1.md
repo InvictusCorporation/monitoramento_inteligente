@@ -91,3 +91,10 @@ A suíte Node cobre autenticação, primeira senha, cookies HttpOnly, CSRF/Origi
 - Windows, FFmpeg real, codecs/equipamentos específicos, HTTPS/proxy da instalação, desempenho prolongado, redes e credenciais privadas não foram validados.
 - Não se conclui compatibilidade com Microsoft Defender a partir de ClamAV ou testes funcionais. O alerta `Trojan:Script/Ulthar.A!ml` da distribuição 0.43.0 permanece documentado e o ZIP suspenso.
 - Nenhum ZIP/release foi criado ou modificado nesta tarefa; **0.44.0-dev.1** é identificação de fonte em desenvolvimento, não release comercial.
+
+
+## Continuação da validação pelo GitHub
+
+As últimas correções de player, sessão, foco, mosaico e salvamento foram concluídas em uma branch de desenvolvimento com CI, após o esgotamento dos créditos da Lovable. A primeira execução dessa revisão passou em 172 testes do serviço e 45 da interface; a tipagem identificou a opção de teste `exact` incompatível com consultas por papel, que foi removida sem alterar o comportamento testado. A execução subsequente é a referência para aprovação final, tipos e build em [VALIDACAO-CI-PARIDADE.md](VALIDACAO-CI-PARIDADE.md). Os assets compilados e seus hashes são registrados em [PARIDADE-ASSETS-CI.json](PARIDADE-ASSETS-CI.json); estes passam a ser o manifesto final, substituindo os hashes intermediários do desenvolvimento.
+
+Os testes adicionais de componentes não são apresentados como repetição dos percursos Playwright ou ensaio de DVR real. O ZIP antigo, relatórios antivírus e suspensão de instalação permanecem preservados.

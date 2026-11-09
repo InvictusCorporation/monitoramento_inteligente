@@ -117,3 +117,10 @@ Evidências citadas:
 Instalação, iniciadores Windows, preparação de FFmpeg/Node, backup, restauração, atualização de arquivos e concessão local de master são procedimentos de CLI/arquivos. `/api/local-setup` é apenas a exceção original de primeira configuração em loopback com token; não foi transformada em ferramenta geral de administração.
 
 A interface original continua em `/legado/` como compatibilidade opcional. Nenhum fluxo web acima depende desse endereço. O ZIP 0.43.0 continua suspenso pelo alerta Microsoft Defender documentado; esta tarefa não gerou ZIP, release nem declaração de falso positivo.
+
+
+## Revisão final de uso diário
+
+As correções finais acrescentam regressões automatizadas para: foco mantido no modal durante atualizações, Escape com callback atual, player contínuo ao rerender/polling, encerramento completo da sessão quando o player recebe 401, mosaico válido com limite de dois vídeos e acesso paginado a seis câmeras, cadastro concluído mesmo se a leitura seguinte falhar e preservação do formulário quando o próprio POST falha. Também foram preservadas as regressões anteriores de rascunho/versionamento, retenção por escopo e credenciais restritas ao mesmo host/porta.
+
+O relatório [VALIDACAO-CI-PARIDADE.md](VALIDACAO-CI-PARIDADE.md) identifica o commit testado, execução e resultados finais de serviço/interface/tipos/build no GitHub Actions. Os percursos Playwright da validação anterior continuam documentados; não se afirma nova validação com DVR, OpenAI paga ou Windows após essas correções. A falta de créditos da Lovable foi contornada somente para desenvolvimento por CI no GitHub; não houve alteração da proteção do usuário, submissão antivírus ou geração de pacote alternativo.

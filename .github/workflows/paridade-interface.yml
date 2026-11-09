@@ -1,0 +1,61 @@
+name: Validacao da interface operacional
+on:
+  push:
+    branches: ["codex/paridade-interface-0.44-dev"]
+permissions:
+  contents: write
+concurrency:
+  group: paridade-interface-dev
+  cancel-in-progress: true
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: codex/paridade-interface-0.44-dev
+          fetch-depth: 1
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: "24"
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+        with:
+          bun-version: latest
+      - name: Instalar dependencias travadas
+        working-directory: interface
+        run: bun install --frozen-lockfile
+      - name: Testes do servico
+        run: |
+          set -o pipefail
+          node --test servico/tests/*.test.mjs | tee /tmp/paridade-servico.log
+      - name: Testes da interface
+        working-directory: interface
+        run: |
+          set -o pipefail
+          bun run test | tee /tmp/paridade-interface.log
+      - name: Verificar tipos
+        working-directory: interface
+        run: bunx tsc -b --noEmit
+      - name: Compilar interface operacional
+        working-directory: interface
+        run: bun run build:operational
+      - name: Registrar build e validacao na branch
+        env:
+          BRANCH: codex/paridade-interface-0.44-dev
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,json,os
+          root=Path("servico/dist/interface")
+          files=[{"path":str(f),"bytes":f.stat().st_size,"sha256":hashlib.sha256(f.read_bytes()).hexdigest()} for f in sorted(root.rglob("*")) if f.is_file()]
+          Path("docs/PARIDADE-ASSETS-CI.json").write_text(json.dumps({"format":"invictus-parity-assets-ci-v1","commitTestado":os.environ["GITHUB_SHA"],"files":files},indent=2)+"\n")
+          report="# Validacao CI da interface operacional\n\nCommit testado: "+os.environ["GITHUB_SHA"]+"\n\nServico, interface, tipos e build passaram no runner isolado. Nenhum DVR, chave privada ou API paga foi configurado. O ZIP 0.43.0 e a suspensao de seguranca permanecem inalterados.\n\nExecucao: https://github.com/"+os.environ["GITHUB_REPOSITORY"]+"/actions/runs/"+os.environ["GITHUB_RUN_ID"]+"\n\n## Testes do servico\n\n\x60\x60\x60text\n"+Path("/tmp/paridade-servico.log").read_text()[-18000:]+"\n\x60\x60\x60\n\n## Testes da interface\n\n\x60\x60\x60text\n"+Path("/tmp/paridade-interface.log").read_text()[-12000:]+"\n\x60\x60\x60\n"
+          Path("docs/VALIDACAO-CI-PARIDADE.md").write_text(report)
+          PY
+          git add -f servico/dist/interface
+          git add docs/PARIDADE-ASSETS-CI.json docs/VALIDACAO-CI-PARIDADE.md
+          if ! git diff --cached --quiet; then
+            git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Atualiza build operacional apos validacao CI"
+            git push origin "HEAD:$BRANCH"
+          fi

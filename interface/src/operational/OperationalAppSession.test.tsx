@@ -1,0 +1,25 @@
+import {cleanup,fireEvent,render,screen,waitFor} from "@testing-library/react";
+import {afterEach,beforeEach,expect,it,vi} from "vitest";
+import {OperationalApp} from "./OperationalApp";
+import type {Monitoring,Session,State} from "./api";
+const session:Session={csrf:"fixture-csrf",user:{id:"admin",name:"Administradora",email:"admin@example.test",role:"admin",clientId:null,platformAdmin:false,passwordChangeRequired:false}};
+const state:State={installation:{version:"0.44.0-dev.1",startedAt:"2026-01-01T00:00:00Z"},organization:{name:"Empresa fixture",slug:"fixture",brand:"Marca fixture",branding:{primaryColor:"#987b45",logoDataUrl:null,version:1}},user:session.user,customers:[],clients:[{id:"local",name:"Local fixture",customerId:null,customerName:null,license:{enabled:true,allowed:true,status:"active",plan:"Teste",cameraLimit:8,expiresAt:null,version:1}}],cameras:[{id:"cam",name:"Portão",client:"local",createdAt:"2026-01-01T00:00:00Z",connectionStatus:"unconfigured"}],events:[],video:{available:false,maxLive:4,maxPerOperator:4,maxCaptures:2}};
+const monitoring:Monitoring={rules:[{camera:"cam",version:1,enabled:false,name:"Perímetro",priority:"Alta",days:[1],start:"00:00",end:"00:00",timezone:"America/Sao_Paulo",area:{x:0,y:0,width:100,height:100},targets:["person"],pausedTargets:[]}],locations:[{id:"local",name:"Local fixture",enabled:false,version:0}],service:{enabled:false,interval:60,cooldown:300,dailyLimit:100,version:1,state:"disabled"},detectorAvailable:false,ai:{configured:false,enabled:false,available:false,version:0,used:0,dailyLimit:100,model:"fixture"},jobs:[]};
+const json=(value:unknown,status=200)=>new Response(JSON.stringify(value),{status,headers:{"Content-Type":"application/json"}});
+function deferred<T>(){let resolve!:(value:T)=>void,reject!:(reason:unknown)=>void;const promise=new Promise<T>((res,rej)=>{resolve=res;reject=rej});return{promise,resolve,reject}}
+async function login(){fireEvent.change(await screen.findByLabelText("Empresa"),{target:{value:"fixture"}});fireEvent.change(screen.getByLabelText("E-mail"),{target:{value:"admin@example.test"}});fireEvent.change(screen.getByLabelText("Senha"),{target:{value:"fixture-password"}});fireEvent.click(screen.getByText("Entrar"))}
+beforeEach(()=>{window.InvictusLive={start:vi.fn(),stop:vi.fn()};window.InvictusAlerts={start:vi.fn(),stop:vi.fn()}});
+afterEach(()=>{cleanup();vi.unstubAllGlobals();vi.restoreAllMocks()});
+it("login com leituras em andamento mostra guarda sem acessar organização nula e depois recupera",async()=>{
+ const pendingState=deferred<Response>(),pendingMonitoring=deferred<Response>();let calls=0;
+ vi.stubGlobal("fetch",vi.fn((input:RequestInfo|URL,init?:RequestInit)=>{const path=String(input);if(path==="/api/session")return Promise.resolve(calls++===0?json({error:"Entre"},401):json(session));if(path==="/api/login")return Promise.resolve(json(session));if(path==="/api/state")return pendingState.promise;if(path==="/api/monitoring")return pendingMonitoring.promise;return Promise.reject(Error("Rota inesperada "+path+" "+init?.method))}));
+ render(<OperationalApp/>);await login();expect(await screen.findByText("Carregando dados autorizados…")).toBeInTheDocument();expect(screen.queryByText("Marca fixture")).not.toBeInTheDocument();
+ pendingState.resolve(json(state));pendingMonitoring.resolve(json(monitoring));expect(await screen.findByRole("heading",{name:"Painel / Ao vivo"})).toBeInTheDocument();expect(screen.getByText("Empresa fixture · 0.44.0-dev.1 · sessão autenticada")).toBeInTheDocument();
+});
+it("falha de refresh mantém estado e rascunho; nova tentativa recupera sem demo",async()=>{
+ let firstSession=true,stateReads=0;
+ vi.stubGlobal("fetch",vi.fn((input:RequestInfo|URL)=>{const path=String(input);if(path==="/api/session"){const first=firstSession;firstSession=false;return Promise.resolve(first?json({error:"Entre"},401):json(session))}if(path==="/api/login")return Promise.resolve(json(session));if(path==="/api/state"||path==="/api/monitoring"){stateReads++;if(stateReads===3||stateReads===4)return Promise.resolve(json({error:"Falha temporária"},502));return Promise.resolve(json(path==="/api/state"?state:monitoring))}return Promise.reject(Error("Rota inesperada "+path))}));
+ render(<OperationalApp/>);await login();expect(await screen.findByRole("heading",{name:"Painel / Ao vivo"})).toBeInTheDocument();fireEvent.click(screen.getByText("Monitoramento"));fireEvent.click(await screen.findByText("Editar regra"));fireEvent.change(screen.getByLabelText("Nome"),{target:{value:"Rascunho preservado"}});
+ fireEvent.click(screen.getByLabelText("Atualizar dados"));expect(await screen.findByText(/Falha temporária/)).toBeInTheDocument();expect(screen.getByLabelText("Nome")).toHaveValue("Rascunho preservado");expect(screen.getByRole("heading",{name:"Monitoramento"})).toBeInTheDocument();
+ fireEvent.click(screen.getByLabelText("Atualizar dados"));await waitFor(()=>expect(screen.queryByText(/Falha temporária/)).not.toBeInTheDocument());expect(screen.getByLabelText("Nome")).toHaveValue("Rascunho preservado");
+});

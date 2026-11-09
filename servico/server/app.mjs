@@ -427,14 +427,27 @@ export async function createApp({ db, origin, secureCookies = false, now = Date.
         if(action==='connection'&&['POST','PATCH'].includes(method)) {
           if(u.role==='operator')throw new HttpError(403,'A configuração é restrita ao administrador ou ao cliente responsável.');
           if(!cameraKey)throw new HttpError(503,'As conexões de câmeras não estão habilitadas.');
-          const data=await body(req),{row}=connectionFor(camera);
+          const data=await body(req),{row,config:previous}=connectionFor(camera);
           if(!Number.isInteger(data.version)||data.version!==(row?.version||0))throw new HttpError(409,'A configuração foi alterada. Abra novamente a câmera.');
           if(method==='PATCH') {
             if(!row||typeof data.enabled!=='boolean')throw new HttpError(400,'Configuração inválida.');
             transaction(db,()=>{db.prepare('UPDATE camera_connections SET enabled=?,version=version+1,updated_at=? WHERE camera_id=? AND org_id=?')
               .run(Number(data.enabled),new Date(now()).toISOString(),id,u.org_id);audit(db,u,data.enabled?'camera.enabled':'camera.disabled',id)});
           } else {
-            const config=validateConnection(data,videoGateway.endpoints,camera.client_id),secret=sealConnection(cameraKey,camera,config);
+            // Optional credential retention never returns or logs the previous secret.
+            // All other fields still pass through the original endpoint/RTSP validation.
+            let input=data,previousDestination=null;
+            if(data.preserveCredentials===true){
+              if(!row||!previous)throw new HttpError(400,'Não há credenciais anteriores para preservar.');
+              previousDestination=validateConnection(previous,videoGateway.endpoints,camera.client_id);
+              input={...data,username:previous.username,password:previous.password};
+            }
+            const config=validateConnection(input,videoGateway.endpoints,camera.client_id);
+            // Sealed credentials may only follow edits within the exact authorized destination.
+            // A host/port change requires explicit new credentials, even inside the same tenant/location.
+            if(previousDestination&&(config.host!==previousDestination.host||config.port!==previousDestination.port))
+              throw new HttpError(400,'Para alterar host ou porta, informe usuário e senha novamente sem preservar credenciais.');
+            const secret=sealConnection(cameraKey,camera,config);
             transaction(db,()=>{db.prepare(`INSERT INTO camera_connections(camera_id,org_id,secret,enabled,version,updated_at) VALUES(?,?,?,1,?,?)
               ON CONFLICT(camera_id) DO UPDATE SET secret=excluded.secret,enabled=1,version=excluded.version,updated_at=excluded.updated_at`)
               .run(id,u.org_id,secret,(row?.version||0)+1,new Date(now()).toISOString());audit(db,u,'camera.configured',id)});

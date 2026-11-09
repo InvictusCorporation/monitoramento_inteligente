@@ -74,7 +74,7 @@ test('Autenticação, isolamento e fluxos da API HTTP', async t => {
   });
   await t.test('cliente só lê e cadastra câmeras no próprio local; não eleva privilégios',async()=>{
     const data=(await req('/api/state?client='+client2,'GET',null,clientOne)).data;
-    assert.match(data.installation.version,/^\d+\.\d+\.\d+$/);assert.ok(Number.isFinite(Date.parse(data.installation.startedAt)));assert.deepEqual(Object.keys(data.installation).sort(),['startedAt','version']);
+    assert.equal(data.installation.version,'0.44.0-dev.1');assert.ok(Number.isFinite(Date.parse(data.installation.startedAt)));assert.deepEqual(Object.keys(data.installation).sort(),['startedAt','version']);
     assert.deepEqual(data.clients.map(c=>c.id),[client1]);assert.deepEqual(data.cameras.map(c=>c.id),[camera1]);
     assert.equal((await req('/api/cameras','POST',{name:'Própria',client:client1},clientOne)).status,201);
     assert.equal((await req('/api/cameras','POST',{name:'Outro local',client:client2},clientOne)).status,404);

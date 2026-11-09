@@ -5,6 +5,12 @@ Object.defineProperty(window, "scrollTo", {
   value: () => {},
 });
 
+// jsdom has no canvas implementation; browser area drawing is covered by Playwright.
+Object.defineProperty(HTMLCanvasElement.prototype, "getContext", {
+  configurable: true,
+  value: () => null,
+});
+
 Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: (query: string) => ({
